@@ -5,7 +5,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -233,7 +232,7 @@ class ConfigService extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      _error = 'Error: $e';
+      _error = 'Error loading config: ${e.toString()}';
       _isLoading = false;
       notifyListeners();
     }
@@ -277,7 +276,7 @@ class PlaylistService extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      _error = 'Error loading playlist: $e';
+      _error = 'Error loading playlist: ${e.toString()}';
       _isLoading = false;
       notifyListeners();
     }
@@ -357,7 +356,7 @@ class PlaylistService extends ChangeNotifier {
   }
 }
 
-// ==================== UI - MAIN APP ====================
+// ==================== MAIN APP ====================
 
 class MxonliveApp extends StatelessWidget {
   const MxonliveApp({Key? key}) : super(key: key);
