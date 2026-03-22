@@ -7,88 +7,157 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MxonliveApp());
 }
 
 // ==================== MODELS ====================
+
 class AppConfig {
-  final String appName;
-  final String version;
-  final String welcomeMessage;
-  final String notification;
-  final String m3uUrl;
-  final String updateTitle;
-  final String updateDescription;
-  final String apkDownloadUrl;
-  final String webUrl;
-  final String disclaimer;
-  final String creditPlatform;
-  final String telegramUser;
-  final String telegramGroup;
-  final String website;
-  final bool welcomeEnabled;
-  final bool notificationEnabled;
+  final AppData app;
+  final UpdatesData updates;
+  final DownloadsData downloads;
+  final LegalData legal;
+  final CreditsData credits;
+  final ContactData contact;
+  final FeaturesData features;
 
   AppConfig({
-    required this.appName,
-    required this.version,
-    required this.welcomeMessage,
-    required this.notification,
-    required this.m3uUrl,
-    required this.updateTitle,
-    required this.updateDescription,
-    required this.apkDownloadUrl,
-    required this.webUrl,
-    required this.disclaimer,
-    required this.creditPlatform,
-    required this.telegramUser,
-    required this.telegramGroup,
-    required this.website,
-    required this.welcomeEnabled,
-    required this.notificationEnabled,
+    required this.app,
+    required this.updates,
+    required this.downloads,
+    required this.legal,
+    required this.credits,
+    required this.contact,
+    required this.features,
   });
 
   factory AppConfig.fromJson(Map<String, dynamic> json) {
     return AppConfig(
-      appName: json['app']['name'] ?? 'mxonlive',
-      version: json['app']['version'] ?? '1.0.0',
-      welcomeMessage: json['app']['welcome_message'] ?? 'Welcome to mxonlive',
-      notification: json['app']['notification'] ?? '',
-      m3uUrl: json['app']['m3u_url'] ?? '',
-      updateTitle: json['updates']['title'] ?? 'What\'s New',
-      updateDescription: json['updates']['description'] ?? '',
-      apkDownloadUrl: json['downloads']['apk'] ?? '',
-      webUrl: json['downloads']['web'] ?? '',
-      disclaimer: json['legal']['disclaimer'] ?? '',
-      creditPlatform: json['credits']['platform'] ?? 'mxonlive IPTV Platform',
-      telegramUser: json['contact']['telegram_user'] ?? '',
-      telegramGroup: json['contact']['telegram_group'] ?? '',
-      website: json['contact']['website'] ?? '',
-      welcomeEnabled: json['features']['welcome_enabled'] ?? true,
-      notificationEnabled: json['features']['notification_enabled'] ?? true,
+      app: AppData.fromJson(json['app'] ?? {}),
+      updates: UpdatesData.fromJson(json['updates'] ?? {}),
+      downloads: DownloadsData.fromJson(json['downloads'] ?? {}),
+      legal: LegalData.fromJson(json['legal'] ?? {}),
+      credits: CreditsData.fromJson(json['credits'] ?? {}),
+      contact: ContactData.fromJson(json['contact'] ?? {}),
+      features: FeaturesData.fromJson(json['features'] ?? {}),
     );
   }
+}
 
-  factory AppConfig.fallback() {
-    return AppConfig(
-      appName: 'mxonlive',
-      version: '1.0.0',
-      welcomeMessage: 'Welcome to mxonlive – Enjoy Live TV Anytime',
-      notification: '📢 New channels added! Enjoy uninterrupted streaming.',
-      m3uUrl: 'https://private-zone-by-xfireflix.pages.dev/playlist-isp-bdix.m3u',
-      updateTitle: 'What\'s New',
-      updateDescription: 'Improved player stability, faster channel loading, bug fixes.',
-      apkDownloadUrl: 'https://mxonlive.github.io/download/mxonlive.apk',
-      webUrl: 'https://mxonlive.github.io',
-      disclaimer: 'mxonlive does not host any content. All streams belong to their respective owners.',
-      creditPlatform: 'mxonlive IPTV Platform',
-      telegramUser: 'https://t.me/sultanarabi161',
-      telegramGroup: 'https://t.me/mxonlive',
-      website: 'https://mxonlive.github.io',
-      welcomeEnabled: true,
-      notificationEnabled: true,
+class AppData {
+  final String name;
+  final String version;
+  final String welcomeMessage;
+  final String notification;
+  final String m3uUrl;
+
+  AppData({
+    required this.name,
+    required this.version,
+    required this.welcomeMessage,
+    required this.notification,
+    required this.m3uUrl,
+  });
+
+  factory AppData.fromJson(Map<String, dynamic> json) {
+    return AppData(
+      name: json['name'] ?? 'mxonlive',
+      version: json['version'] ?? '1.0.0',
+      welcomeMessage: json['welcome_message'] ?? '',
+      notification: json['notification'] ?? '',
+      m3uUrl: json['m3u_url'] ?? '',
+    );
+  }
+}
+
+class UpdatesData {
+  final String title;
+  final String description;
+
+  UpdatesData({required this.title, required this.description});
+
+  factory UpdatesData.fromJson(Map<String, dynamic> json) {
+    return UpdatesData(
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+    );
+  }
+}
+
+class DownloadsData {
+  final String apk;
+  final String web;
+
+  DownloadsData({required this.apk, required this.web});
+
+  factory DownloadsData.fromJson(Map<String, dynamic> json) {
+    return DownloadsData(
+      apk: json['apk'] ?? '',
+      web: json['web'] ?? '',
+    );
+  }
+}
+
+class LegalData {
+  final String disclaimer;
+
+  LegalData({required this.disclaimer});
+
+  factory LegalData.fromJson(Map<String, dynamic> json) {
+    return LegalData(
+      disclaimer: json['disclaimer'] ?? '',
+    );
+  }
+}
+
+class CreditsData {
+  final String platform;
+
+  CreditsData({required this.platform});
+
+  factory CreditsData.fromJson(Map<String, dynamic> json) {
+    return CreditsData(
+      platform: json['platform'] ?? '',
+    );
+  }
+}
+
+class ContactData {
+  final String telegramUser;
+  final String telegramGroup;
+  final String website;
+
+  ContactData({
+    required this.telegramUser,
+    required this.telegramGroup,
+    required this.website,
+  });
+
+  factory ContactData.fromJson(Map<String, dynamic> json) {
+    return ContactData(
+      telegramUser: json['telegram_user'] ?? '',
+      telegramGroup: json['telegram_group'] ?? '',
+      website: json['website'] ?? '',
+    );
+  }
+}
+
+class FeaturesData {
+  final bool welcomeEnabled;
+  final bool notificationEnabled;
+
+  FeaturesData({
+    required this.welcomeEnabled,
+    required this.notificationEnabled,
+  });
+
+  factory FeaturesData.fromJson(Map<String, dynamic> json) {
+    return FeaturesData(
+      welcomeEnabled: json['welcome_enabled'] ?? true,
+      notificationEnabled: json['notification_enabled'] ?? true,
     );
   }
 }
@@ -111,49 +180,61 @@ class Channel {
 }
 
 // ==================== SERVICES ====================
+
 class ConfigService extends ChangeNotifier {
   AppConfig? _config;
   String? _error;
+  bool _isLoading = true;
 
   AppConfig? get config => _config;
   String? get error => _error;
+  bool get isLoading => _isLoading;
 
-  Future<void> loadConfig(String configUrl) async {
+  final String primaryConfigUrl =
+      'https://raw.githubusercontent.com/johirxofficial/mxonlive/refs/heads/main/config.json';
+  final String backupConfigUrl =
+      'https://raw.githubusercontent.com/johirxofficial/mxonlive/refs/heads/main/backup_config.json';
+
+  Future<void> loadConfig() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final response = await http.get(
-        Uri.parse(configUrl),
-        headers: {'Accept': 'application/json'},
-      ).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () => http.Response('timeout', 408),
-      );
+      // Try primary config
+      final response = await http
+          .get(Uri.parse(primaryConfigUrl))
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         _config = AppConfig.fromJson(json);
         _error = null;
-        await prefs.setString('app_config_cache', response.body);
+        _isLoading = false;
         notifyListeners();
         return;
       }
 
-      // Fallback to cache
-      final cachedConfig = prefs.getString('app_config_cache');
-      if (cachedConfig != null) {
-        _config = AppConfig.fromJson(jsonDecode(cachedConfig));
-        _error = 'Using cached configuration';
+      // Try backup config
+      final backupResponse = await http
+          .get(Uri.parse(backupConfigUrl))
+          .timeout(const Duration(seconds: 10));
+
+      if (backupResponse.statusCode == 200) {
+        final json = jsonDecode(backupResponse.body);
+        _config = AppConfig.fromJson(json);
+        _error = 'Using backup configuration';
+        _isLoading = false;
         notifyListeners();
         return;
       }
 
-      // Final fallback
-      _config = AppConfig.fallback();
-      _error = 'Server unreachable. Using default config.';
+      _error = 'Failed to load configuration from both sources';
+      _isLoading = false;
       notifyListeners();
     } catch (e) {
-      _error = 'Error loading config: $e';
-      _config = AppConfig.fallback();
+      _error = 'Error: $e';
+      _isLoading = false;
       notifyListeners();
     }
   }
@@ -162,44 +243,42 @@ class ConfigService extends ChangeNotifier {
 class PlaylistService extends ChangeNotifier {
   List<Channel> _channels = [];
   String? _error;
+  bool _isLoading = false;
 
   List<Channel> get channels => _channels;
   String? get error => _error;
+  bool get isLoading => _isLoading;
 
   Future<void> loadPlaylist(String m3uUrl) async {
+    if (m3uUrl.isEmpty) {
+      _error = 'M3U URL is empty';
+      notifyListeners();
+      return;
+    }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final response = await http.get(Uri.parse(m3uUrl)).timeout(
-        const Duration(seconds: 15),
-        onTimeout: () => http.Response('timeout', 408),
-      );
+      final response = await http
+          .get(Uri.parse(m3uUrl))
+          .timeout(const Duration(seconds: 20));
 
       if (response.statusCode == 200) {
         _channels = _parseM3U(response.body);
         _error = null;
-        await prefs.setString('playlist_cache', response.body);
+        _isLoading = false;
         notifyListeners();
         return;
       }
 
-      // Fallback to cache
-      final cachedPlaylist = prefs.getString('playlist_cache');
-      if (cachedPlaylist != null) {
-        _channels = _parseM3U(cachedPlaylist);
-        _error = 'Using cached playlist';
-        notifyListeners();
-        return;
-      }
-
-      _error = 'Failed to load playlist';
+      _error = 'Failed to load playlist (HTTP ${response.statusCode})';
+      _isLoading = false;
       notifyListeners();
     } catch (e) {
       _error = 'Error loading playlist: $e';
-      final prefs = await SharedPreferences.getInstance();
-      final cachedPlaylist = prefs.getString('playlist_cache');
-      if (cachedPlaylist != null) {
-        _channels = _parseM3U(cachedPlaylist);
-      }
+      _isLoading = false;
       notifyListeners();
     }
   }
@@ -238,7 +317,10 @@ class PlaylistService extends ChangeNotifier {
         if (groupMatch != null) {
           currentGroup = groupMatch.group(1);
         }
-      } else if (currentName != null && !line.startsWith('#') && line.isNotEmpty) {
+      } else if (currentName != null &&
+          !line.startsWith('#') &&
+          line.isNotEmpty &&
+          (line.startsWith('http://') || line.startsWith('https://'))) {
         channels.add(Channel(
           name: currentName,
           url: line,
@@ -276,6 +358,7 @@ class PlaylistService extends ChangeNotifier {
 }
 
 // ==================== UI - MAIN APP ====================
+
 class MxonliveApp extends StatelessWidget {
   const MxonliveApp({Key? key}) : super(key: key);
 
@@ -309,6 +392,7 @@ class MxonliveApp extends StatelessWidget {
 }
 
 // ==================== SPLASH SCREEN ====================
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
@@ -324,18 +408,22 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initialize() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!mounted) return;
+
     final configService = Provider.of<ConfigService>(context, listen: false);
-    const configUrl = 'https://raw.githubusercontent.com/sultanarabi161/mxonlive/main/config.json';
-    
-    await configService.loadConfig(configUrl);
+    await configService.loadConfig();
+
+    if (!mounted) return;
+
+    final config = configService.config;
+    if (config != null && config.app.m3uUrl.isNotEmpty) {
+      final playlistService = Provider.of<PlaylistService>(context, listen: false);
+      await playlistService.loadPlaylist(config.app.m3uUrl);
+    }
 
     if (mounted) {
-      final config = configService.config;
-      if (config != null) {
-        final playlistService = Provider.of<PlaylistService>(context, listen: false);
-        await playlistService.loadPlaylist(config.m3uUrl);
-      }
-
       Navigator.of(context).pushReplacementNamed('/home');
     }
   }
@@ -354,7 +442,11 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: Colors.blueAccent.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(Icons.live_tv, size: 60, color: Colors.blueAccent),
+              child: const Icon(
+                Icons.live_tv,
+                size: 60,
+                color: Colors.blueAccent,
+              ),
             ),
             const SizedBox(height: 30),
             const Text(
@@ -365,7 +457,7 @@ class _SplashScreenState extends State<SplashScreen> {
             const SpinKitWave(color: Colors.blueAccent, size: 40),
             const SizedBox(height: 40),
             const Text(
-              'Loading channels...',
+              'Loading configuration & channels...',
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
@@ -376,6 +468,7 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 // ==================== HOME PAGE ====================
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -406,14 +499,37 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  Future<void> _refreshChannels() async {
+    final configService = Provider.of<ConfigService>(context, listen: false);
+    final playlistService = Provider.of<PlaylistService>(context, listen: false);
+
+    await configService.loadConfig();
+    final config = configService.config;
+    if (config != null && config.app.m3uUrl.isNotEmpty) {
+      await playlistService.loadPlaylist(config.app.m3uUrl);
+    }
+
+    if (mounted) {
+      _searchController.clear();
+      setState(() {
+        _filteredChannels = [];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text(
-          'mxonlive',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        title: Consumer<ConfigService>(
+          builder: (context, configService, _) {
+            final appName = configService.config?.app.name ?? 'mxonlive';
+            return Text(
+              appName,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            );
+          },
         ),
         actions: [
           IconButton(
@@ -426,199 +542,275 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Consumer2<ConfigService, PlaylistService>(
         builder: (context, configService, playlistService, _) {
-          final config = configService.config ?? AppConfig.fallback();
+          final config = configService.config;
 
-          return CustomScrollView(
-            slivers: [
-              // Welcome Message
-              if (config.welcomeEnabled)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.blueAccent.withOpacity(0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Text(
-                        config.welcomeMessage,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-              // Notification Capsule
-              if (config.notificationEnabled && config.notification.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.orangeAccent.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: Colors.orangeAccent.withOpacity(0.4),
-                          width: 1,
-                        ),
-                      ),
-                      child: Text(
-                        config.notification,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.orangeAccent,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-              // Search Box
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search channels...',
-                      hintStyle: TextStyle(color: Colors.grey[600]),
-                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear, color: Colors.grey),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _filteredChannels = playlistService.channels;
-                                });
-                              },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Colors.grey.withOpacity(0.3),
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Colors.grey.withOpacity(0.3),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Colors.blueAccent,
-                        ),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.withOpacity(0.1),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
+          if (configService.isLoading) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SpinKitWave(color: Colors.blueAccent, size: 40),
+                  const SizedBox(height: 20),
+                  const Text('Loading channels...'),
+                ],
               ),
+            );
+          }
 
-              // Error Handling
-              if (playlistService.error != null)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Colors.redAccent.withOpacity(0.3),
-                          width: 1,
+          if (config == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 60, color: Colors.redAccent),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Failed to load configuration',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    configService.error ?? 'Unknown error',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: _refreshChannels,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: _refreshChannels,
+            child: CustomScrollView(
+              slivers: [
+                // Welcome Message
+                if (config.features.welcomeEnabled &&
+                    config.app.welcomeMessage.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.blueAccent.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          config.app.welcomeMessage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white70,
+                          ),
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.warning_outlined, color: Colors.redAccent, size: 20),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              playlistService.error!,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.redAccent,
+                    ),
+                  ),
+
+                // Notification Capsule
+                if (config.features.notificationEnabled &&
+                    config.app.notification.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.orangeAccent.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: Colors.orangeAccent.withOpacity(0.4),
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          config.app.notification,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.orangeAccent,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Search Box
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search channels...',
+                        hintStyle: TextStyle(color: Colors.grey[600]),
+                        prefixIcon:
+                            const Icon(Icons.search, color: Colors.grey),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, color: Colors.grey),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _filteredChannels = [];
+                                  });
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.grey.withOpacity(0.3),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.grey.withOpacity(0.3),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.blueAccent,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.withOpacity(0.1),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+
+                // Error Handling
+                if (playlistService.error != null)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.redAccent.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.warning_outlined,
+                              color: Colors.redAccent,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                playlistService.error!,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.redAccent,
+                                ),
                               ),
                             ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Loading State
+                if (playlistService.isLoading)
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SpinKitWave(color: Colors.blueAccent, size: 40),
+                          const SizedBox(height: 20),
+                          const Text('Loading channels...'),
+                        ],
+                      ),
+                    ),
+                  )
+                // Channels Grid
+                else if (playlistService.channels.isEmpty)
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.live_tv_outlined,
+                            size: 60,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'No channels found',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton.icon(
+                            onPressed: _refreshChannels,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Retry'),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ),
-
-              // Channels Grid
-              if (playlistService.channels.isEmpty)
-                SliverFillRemaining(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.live_tv_outlined,
-                          size: 60,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'No channels found',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: 0.75,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final channel = _filteredChannels.isNotEmpty
+                              ? _filteredChannels[index]
+                              : playlistService.channels[index];
+                          return _ChannelCard(channel: channel);
+                        },
+                        childCount: _filteredChannels.isNotEmpty
+                            ? _filteredChannels.length
+                            : playlistService.channels.length,
+                      ),
                     ),
                   ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
-                  sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      childAspectRatio: 0.75,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final channel = _filteredChannels.isNotEmpty
-                            ? _filteredChannels[index]
-                            : playlistService.channels[index];
-                        return _ChannelCard(channel: channel);
-                      },
-                      childCount: _filteredChannels.isNotEmpty
-                          ? _filteredChannels.length
-                          : playlistService.channels.length,
-                    ),
-                  ),
-                ),
-            ],
+              ],
+            ),
           );
         },
       ),
@@ -627,6 +819,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 // ==================== CHANNEL CARD ====================
+
 class _ChannelCard extends StatelessWidget {
   final Channel channel;
 
@@ -665,7 +858,8 @@ class _ChannelCard extends StatelessWidget {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(12)),
                       color: Colors.grey.withOpacity(0.15),
                     ),
                     child: channel.logo != null && channel.logo!.isNotEmpty
@@ -673,7 +867,10 @@ class _ChannelCard extends StatelessWidget {
                             imageUrl: channel.logo!,
                             fit: BoxFit.cover,
                             placeholder: (context, url) => const Center(
-                              child: SpinKitRipple(color: Colors.blueAccent, size: 30),
+                              child: SpinKitRipple(
+                                color: Colors.blueAccent,
+                                size: 30,
+                              ),
                             ),
                             errorWidget: (context, url, error) => Center(
                               child: Icon(
@@ -715,6 +912,7 @@ class _ChannelCard extends StatelessWidget {
 }
 
 // ==================== PLAYER PAGE ====================
+
 class PlayerPage extends StatefulWidget {
   const PlayerPage({Key? key}) : super(key: key);
 
@@ -727,6 +925,7 @@ class _PlayerPageState extends State<PlayerPage> {
   bool _isPlaying = false;
   bool _showControls = true;
   Timer? _controlsTimer;
+  String? _playerError;
 
   @override
   void initState() {
@@ -739,12 +938,14 @@ class _PlayerPageState extends State<PlayerPage> {
     _videoController = VideoPlayerController.network(
       channel.url,
       httpHeaders: {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 12) AppleWebKit/537.36',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 12) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36',
       },
     )
       ..initialize().then((_) {
         if (mounted) {
           setState(() {
+            _playerError = null;
             _isPlaying = true;
             _videoController.play();
           });
@@ -752,6 +953,14 @@ class _PlayerPageState extends State<PlayerPage> {
         }
       })
       ..addListener(_onVideoStateChanged);
+
+    _videoController.addListener(() {
+      if (_videoController.value.hasError) {
+        setState(() {
+          _playerError = 'Error: ${_videoController.value.errorDescription}';
+        });
+      }
+    });
   }
 
   void _onVideoStateChanged() {
@@ -765,7 +974,7 @@ class _PlayerPageState extends State<PlayerPage> {
   void _startControlsTimer() {
     _controlsTimer?.cancel();
     _controlsTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted) {
+      if (mounted && _showControls) {
         setState(() {
           _showControls = false;
         });
@@ -786,6 +995,15 @@ class _PlayerPageState extends State<PlayerPage> {
     }
   }
 
+  void _retryPlayback() {
+    setState(() {
+      _playerError = null;
+    });
+    _videoController.dispose();
+    _controlsTimer?.cancel();
+    _initializePlayer();
+  }
+
   @override
   void dispose() {
     _controlsTimer?.cancel();
@@ -799,136 +1017,213 @@ class _PlayerPageState extends State<PlayerPage> {
     final playlistService = Provider.of<PlaylistService>(context);
     final relatedChannels = playlistService.getChannelsByGroup(channel.groupTitle);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(channel.name),
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          // Video Player
-          Container(
-            color: Colors.black,
-            height: 250,
-            child: GestureDetector(
-              onTap: _toggleControls,
-              child: Stack(
-                children: [
-                  _videoController.value.isInitialized
-                      ? VideoPlayer(_videoController)
-                      : const Center(
-                          child: SpinKitWave(color: Colors.blueAccent, size: 40),
-                        ),
-                  if (_showControls)
-                    Container(
-                      color: Colors.black.withOpacity(0.3),
-                      child: Center(
-                        child: IconButton(
-                          iconSize: 50,
-                          icon: Icon(
-                            _isPlaying ? Icons.pause : Icons.play_arrow,
-                            color: Colors.white,
+    return WillPopScope(
+      onWillPop: () async {
+        _videoController.pause();
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(channel.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+          elevation: 0,
+        ),
+        body: Column(
+          children: [
+            // Video Player
+            Container(
+              color: Colors.black,
+              height: 250,
+              child: GestureDetector(
+                onTap: _toggleControls,
+                child: Stack(
+                  children: [
+                    _videoController.value.isInitialized
+                        ? VideoPlayer(_videoController)
+                        : Container(
+                            color: Colors.black,
+                            child: const Center(
+                              child: SpinKitWave(
+                                color: Colors.blueAccent,
+                                size: 40,
+                              ),
+                            ),
                           ),
-                          onPressed: () {
-                            if (_isPlaying) {
-                              _videoController.pause();
-                            } else {
-                              _videoController.play();
-                            }
-                          },
+                    if (_showControls)
+                      Container(
+                        color: Colors.black.withOpacity(0.3),
+                        child: Center(
+                          child: IconButton(
+                            iconSize: 50,
+                            icon: Icon(
+                              _isPlaying ? Icons.pause : Icons.play_arrow,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              if (_isPlaying) {
+                                _videoController.pause();
+                              } else {
+                                _videoController.play();
+                              }
+                            },
+                          ),
                         ),
                       ),
+                    if (_playerError != null && _showControls)
+                      Container(
+                        color: Colors.black.withOpacity(0.5),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.redAccent,
+                                size: 50,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _playerError!,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton.icon(
+                                onPressed: _retryPlayback,
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Channel Info
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    channel.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Group: ${channel.groupTitle}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
                 ],
               ),
             ),
-          ),
 
-          // Channel Info
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  channel.name,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // Related Channels Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'More from ${channel.groupTitle} (${relatedChannels.length})',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Group: ${channel.groupTitle}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                ),
-              ],
-            ),
-          ),
-
-          // Related Channels
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'More from ${channel.groupTitle}',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
 
-          Expanded(
-            child: relatedChannels.isEmpty
-                ? Center(
-                    child: Text(
-                      'No more channels in this group',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: relatedChannels.length,
-                    itemBuilder: (context, index) {
-                      final ch = relatedChannels[index];
-                      final isActive = ch.name == channel.name;
-                      return GestureDetector(
-                        onTap: () {
-                          if (!isActive) {
-                            _videoController.pause();
-                            Navigator.of(context).pushReplacementNamed(
-                              '/player',
-                              arguments: ch,
-                            );
-                          }
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: isActive ? Colors.blueAccent.withOpacity(0.3) : Colors.grey.withOpacity(0.1),
-                            border: Border.all(
-                              color: isActive ? Colors.blueAccent : Colors.grey.withOpacity(0.2),
-                              width: 1,
+            // Related Channels List
+            Expanded(
+              child: relatedChannels.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No more channels in this group',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: relatedChannels.length,
+                      itemBuilder: (context, index) {
+                        final ch = relatedChannels[index];
+                        final isActive = ch.name == channel.name;
+                        return GestureDetector(
+                          onTap: () {
+                            if (!isActive) {
+                              _videoController.pause();
+                              _controlsTimer?.cancel();
+                              Navigator.of(context).pushReplacementNamed(
+                                '/player',
+                                arguments: ch,
+                              );
+                            }
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: isActive
+                                  ? Colors.blueAccent.withOpacity(0.3)
+                                  : Colors.grey.withOpacity(0.1),
+                              border: Border.all(
+                                color: isActive
+                                    ? Colors.blueAccent
+                                    : Colors.grey.withOpacity(0.2),
+                                width: 1,
+                              ),
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              if (ch.logo != null && ch.logo!.isNotEmpty)
-                                CachedNetworkImage(
-                                  imageUrl: ch.logo!,
-                                  width: 50,
-                                  height: 50,
-                                  fit: BoxFit.cover,
-                                  borderRadius: BorderRadius.circular(4),
-                                  placeholder: (context, url) => Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      color: Colors.grey.withOpacity(0.2),
+                            child: Row(
+                              children: [
+                                if (ch.logo != null && ch.logo!.isNotEmpty)
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: CachedNetworkImage(
+                                      imageUrl: ch.logo!,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          Container(
+                                            width: 50,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              color: Colors.grey
+                                                  .withOpacity(0.2),
+                                            ),
+                                          ),
+                                      errorWidget: (context, url, error) =>
+                                          Container(
+                                            width: 50,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              color: Colors.grey
+                                                  .withOpacity(0.2),
+                                            ),
+                                            child: Icon(
+                                              Icons.live_tv,
+                                              color: Colors.grey[600],
+                                              size: 24,
+                                            ),
+                                          ),
                                     ),
-                                  ),
-                                  errorWidget: (context, url, error) => Container(
+                                  )
+                                else
+                                  Container(
                                     width: 50,
                                     height: 50,
                                     decoration: BoxDecoration(
@@ -941,71 +1236,79 @@ class _PlayerPageState extends State<PlayerPage> {
                                       size: 24,
                                     ),
                                   ),
-                                )
-                              else
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: Colors.grey.withOpacity(0.2),
-                                  ),
-                                  child: Icon(
-                                    Icons.live_tv,
-                                    color: Colors.grey[600],
-                                    size: 24,
-                                  ),
-                                ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      ch.name,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                                        color: isActive ? Colors.blueAccent : Colors.white70,
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        ch.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: isActive
+                                              ? FontWeight.w600
+                                              : FontWeight.w500,
+                                          color: isActive
+                                              ? Colors.blueAccent
+                                              : Colors.white70,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              if (isActive)
-                                const Icon(Icons.play_arrow, color: Colors.blueAccent, size: 20),
-                            ],
+                                if (isActive)
+                                  const Icon(
+                                    Icons.play_arrow,
+                                    color: Colors.blueAccent,
+                                    size: 20,
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 // ==================== INFO PAGE ====================
+
 class InfoPage extends StatelessWidget {
   const InfoPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ConfigService>(
-      builder: (context, configService, _) {
-        final config = configService.config ?? AppConfig.fallback();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('About mxonlive'),
+        elevation: 0,
+      ),
+      body: Consumer<ConfigService>(
+        builder: (context, configService, _) {
+          final config = configService.config;
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('About mxonlive'),
-            elevation: 0,
-          ),
-          body: SingleChildScrollView(
+          if (config == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 60, color: Colors.redAccent),
+                  const SizedBox(height: 16),
+                  const Text('Configuration not loaded'),
+                ],
+              ),
+            );
+          }
+
+          return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1029,15 +1332,21 @@ class InfoPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'mxonlive',
+                      Text(
+                        config.app.name,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'v${config.version}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                        'v${config.app.version}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[500],
+                        ),
                       ),
                     ],
                   ),
@@ -1046,127 +1355,171 @@ class InfoPage extends StatelessWidget {
                 const Divider(),
 
                 // What's New
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        config.updateTitle,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        config.updateDescription,
-                        style: TextStyle(fontSize: 13, color: Colors.grey[400]),
-                      ),
-                    ],
+                if (config.updates.title.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          config.updates.title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          config.updates.description,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
                 const Divider(),
 
                 // Downloads
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Downloads',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 12),
-                      _InfoButton(
-                        icon: Icons.android,
-                        label: 'Download APK',
-                        onTap: () => _launchUrl(config.apkDownloadUrl),
-                      ),
-                      const SizedBox(height: 8),
-                      _InfoButton(
-                        icon: Icons.language,
-                        label: 'Open Web Version',
-                        onTap: () => _launchUrl(config.webUrl),
-                      ),
-                    ],
+                if (config.downloads.apk.isNotEmpty ||
+                    config.downloads.web.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Downloads',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (config.downloads.apk.isNotEmpty)
+                          _InfoButton(
+                            icon: Icons.android,
+                            label: 'Download APK',
+                            onTap: () => _launchUrl(config.downloads.apk),
+                          ),
+                        if (config.downloads.apk.isNotEmpty &&
+                            config.downloads.web.isNotEmpty)
+                          const SizedBox(height: 8),
+                        if (config.downloads.web.isNotEmpty)
+                          _InfoButton(
+                            icon: Icons.language,
+                            label: 'Open Web Version',
+                            onTap: () => _launchUrl(config.downloads.web),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
 
                 const Divider(),
 
                 // Disclaimer
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Legal Notice',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        config.disclaimer,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-                      ),
-                    ],
+                if (config.legal.disclaimer.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Legal Notice',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          config.legal.disclaimer,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
                 const Divider(),
 
                 // Credits
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Credits',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        config.creditPlatform,
-                        style: TextStyle(fontSize: 13, color: Colors.grey[400]),
-                      ),
-                    ],
+                if (config.credits.platform.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Credits',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          config.credits.platform,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
                 const Divider(),
 
                 // Contact
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Connect With Us',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 12),
-                      _InfoButton(
-                        icon: Icons.person,
-                        label: 'Telegram (Personal)',
-                        onTap: () => _launchUrl(config.telegramUser),
-                      ),
-                      const SizedBox(height: 8),
-                      _InfoButton(
-                        icon: Icons.group,
-                        label: 'Telegram (Group)',
-                        onTap: () => _launchUrl(config.telegramGroup),
-                      ),
-                      const SizedBox(height: 8),
-                      _InfoButton(
-                        icon: Icons.language,
-                        label: 'Visit Website',
-                        onTap: () => _launchUrl(config.website),
-                      ),
-                    ],
+                if (config.contact.telegramUser.isNotEmpty ||
+                    config.contact.telegramGroup.isNotEmpty ||
+                    config.contact.website.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Connect With Us',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (config.contact.telegramUser.isNotEmpty)
+                          _InfoButton(
+                            icon: Icons.person,
+                            label: 'Telegram (Personal)',
+                            onTap: () => _launchUrl(config.contact.telegramUser),
+                          ),
+                        if (config.contact.telegramUser.isNotEmpty &&
+                            config.contact.telegramGroup.isNotEmpty)
+                          const SizedBox(height: 8),
+                        if (config.contact.telegramGroup.isNotEmpty)
+                          _InfoButton(
+                            icon: Icons.group,
+                            label: 'Telegram (Group)',
+                            onTap: () => _launchUrl(config.contact.telegramGroup),
+                          ),
+                        if ((config.contact.telegramUser.isNotEmpty ||
+                                config.contact.telegramGroup.isNotEmpty) &&
+                            config.contact.website.isNotEmpty)
+                          const SizedBox(height: 8),
+                        if (config.contact.website.isNotEmpty)
+                          _InfoButton(
+                            icon: Icons.language,
+                            label: 'Visit Website',
+                            onTap: () => _launchUrl(config.contact.website),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
 
                 const Divider(),
 
@@ -1177,31 +1530,34 @@ class InfoPage extends StatelessWidget {
                     child: Text(
                       'Web Developer: Sultan Muhammad A\'rabi',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
   Future<void> _launchUrl(String url) async {
     try {
       if (await canLaunchUrl(Uri.parse(url))) {
-        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+        await launchUrl(
+          Uri.parse(url),
+          mode: LaunchMode.externalApplication,
+        );
       }
     } catch (e) {
-      // Fallback: just show a message
+      // Fail silently
     }
   }
 }
-
-// Import needed for URL launching
-import 'package:url_launcher/url_launcher.dart';
 
 class _InfoButton extends StatelessWidget {
   final IconData icon;
@@ -1235,10 +1591,17 @@ class _InfoButton extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 14,
+                color: Colors.grey,
+              ),
             ],
           ),
         ),
