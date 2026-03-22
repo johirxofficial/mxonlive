@@ -191,7 +191,7 @@ class ConfigService extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   final String primaryConfigUrl =
-      'https://raw.githubusercontent.com/johirxofficial/mxonlive/refs/heads/main/config.json';
+      'https://api.npoint.io/09fe1573f0c1157de330';
   final String backupConfigUrl =
       'https://raw.githubusercontent.com/johirxofficial/mxonlive/refs/heads/main/backup_config.json';
 
