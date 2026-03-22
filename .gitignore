@@ -1,0 +1,27 @@
+# Directories
+android/
+ios/
+windows/
+macos/
+linux/
+web/
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build
+*.apk
+*.aar
+*.so
+*.zip
