@@ -10,7 +10,7 @@ build/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
-pubspec.lock
+.pub/
 
 # IDE
 .idea/
@@ -19,9 +19,15 @@ pubspec.lock
 *.swo
 *~
 .DS_Store
+*.iml
 
-# Build
+# Build artifacts
 *.apk
 *.aar
 *.so
 *.zip
+pubspec.lock
+
+# Generated files
+.g.dart
+.config.json
