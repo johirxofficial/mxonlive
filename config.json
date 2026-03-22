@@ -1,0 +1,32 @@
+{
+  "app": {
+    "name": "mxonlive",
+    "version": "1.0.0",
+    "welcome_message": "Welcome to mxonlive – Enjoy Live TV Anytime",
+    "notification": "📢 New channels added! Enjoy uninterrupted streaming.",
+    "m3u_url": "https://private-zone-by-xfireflix.pages.dev/playlist-isp-bdix.m3u"
+  },
+  "updates": {
+    "title": "What's New",
+    "description": "Improved player stability, faster channel loading, bug fixes, enhanced search functionality, and better error handling."
+  },
+  "downloads": {
+    "apk": "https://mxonlive.github.io/download/mxonlive.apk",
+    "web": "https://mxonlive.github.io"
+  },
+  "legal": {
+    "disclaimer": "mxonlive does not host any content. All streams belong to their respective owners. Use responsibly."
+  },
+  "credits": {
+    "platform": "mxonlive IPTV Platform"
+  },
+  "contact": {
+    "telegram_user": "https://t.me/sultanarabi161",
+    "telegram_group": "https://t.me/mxonlive",
+    "website": "https://mxonlive.github.io"
+  },
+  "features": {
+    "welcome_enabled": true,
+    "notification_enabled": true
+  }
+}
