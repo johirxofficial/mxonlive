@@ -1,33 +1,11 @@
-# Directories
-android/
-ios/
-windows/
-macos/
-linux/
-web/
 build/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
+.pub-cache/
 .pub/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
+android/
+ios/
 *.iml
-
-# Build artifacts
-*.apk
-*.aar
-*.so
-*.zip
-pubspec.lock
-
-# Generated files
-.g.dart
-.config.json
+.idea/
