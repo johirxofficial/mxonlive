@@ -1,73 +1,48 @@
-name: mxonlive Build & Release
+name: Auto-Build mxonlive v6.0
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, workflow_dispatch]
 
 jobs:
-  build:
+  build-android:
+    name: Clean & Build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
-
-      - name: Clone Flutter SDK
-        run: |
-          mkdir -p ~/flutter-sdk
-          cd ~/flutter-sdk
-          git clone https://github.com/flutter/flutter.git -b stable --depth 1
-          echo "$HOME/flutter-sdk/flutter/bin" >> $GITHUB_PATH
-
-      - name: Check Flutter
-        run: |
-          which flutter
-          flutter --version
-          flutter doctor -v
-
-      - name: Get Dependencies
-        run: flutter pub get
-
-      - name: Build APK Release
-        run: |
-          flutter build apk \
-            --release \
-            --no-tree-shake-icons \
-            -v
-
-      - name: Build Web Release
-        run: |
-          flutter build web \
-            --release \
-            -v
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        if: always()
+      - uses: subosito/flutter-action@v2
         with:
-          name: mxonlive-release.apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          channel: 'stable'
 
-      - name: Upload Web
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: mxonlive-web
-          path: build/web/
+      # 🔥 STEP 1: FRESH START 🔥
+      - name: Generate New Project
+        run: |
+          echo "Wiping old files..."
+          rm -rf android ios build
+          echo "Generating mxonlive..."
+          flutter create . --org com.mxonlive.tv --project-name mxonlive
 
-      - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/') && success()
-        uses: softprops/action-gh-release@v2
+      # 🔥 STEP 2: PERMISSIONS & CLEARTEXT (Crucial for HTTP streams) 🔥
+      - name: Inject Config
+        run: |
+          # Inject Permissions + usesCleartextTraffic="true"
+          sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <uses-permission android:name="android.permission.WAKE_LOCK"\/>\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"\/>\n    <application android:usesCleartextTraffic="true"/g' android/app/src/main/AndroidManifest.xml
+          
+          # Fix MinSDK
+          sed -i 's/flutter.minSdkVersion/21/g' android/app/build.gradle.kts
+
+      # 🔥 STEP 3: BUILD 🔥
+      - name: Build APKs
+        run: |
+          if [ ! -f assets/logo.png ]; then mkdir -p assets; curl -L -o assets/logo.png "https://cdn-icons-png.flaticon.com/512/3163/3163478.png"; fi
+          flutter pub get
+          dart run flutter_launcher_icons
+          flutter build apk --release
+          flutter build apk --release --split-per-abi
+
+      - uses: actions/upload-artifact@v4
         with:
-          files: build/app/outputs/flutter-apk/app-release.apk
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: mxonlive-v6.0-bundle
+          path: build/app/outputs/flutter-apk/*.apk
